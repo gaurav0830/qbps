@@ -17,7 +17,7 @@ const Sidebar = () => {
     const handleLogout = () => {
         localStorage.removeItem("user");
         setUser(null);
-        window.location.href = "/login"; // Redirect to login after logout
+        window.location.href = "/";  // Redirect to login after logout
     };
 
     return (
@@ -28,10 +28,7 @@ const Sidebar = () => {
                     <FaTachometerAlt className="mr-3" />
                     Dashboard
                 </Link>
-                <Link to="/question" className="flex items-center text-white hover:text-indigo-400 transition duration-200">
-                    <FaFileAlt className="mr-3"/>
-                    Question
-                </Link>
+                
                 <button 
                     onClick={() => setIsModalOpen(true)}
                     className="flex items-center text-white hover:text-indigo-400 transition duration-200 mt-4"
@@ -39,6 +36,10 @@ const Sidebar = () => {
                     <FaFileAlt className="mr-3" />
                     Generate Question
                 </button>
+                <Link to="/question" className="flex items-center text-white hover:text-indigo-400 transition duration-200">
+                    <FaFileAlt className="mr-3"/>
+                    Question
+                </Link>
                 <Link to="/questionpapers" className="flex items-center text-white hover:text-indigo-400 transition duration-200">
                     <FaUsers className="mr-3" />
                     Download QPaper

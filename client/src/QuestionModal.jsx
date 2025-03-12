@@ -1,20 +1,71 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { FaTimes,FaTrash } from "react-icons/fa";
 const QuestionModal = ({ closeModal }) => {
-    const [examType, setExamType] = useState(""); // Internal / Semester
-    const [internalType, setInternalType] = useState(""); // Internal 1 / Internal 2
+    const [examType, setExamType] = useState("");
+    const [internalType, setInternalType] = useState("");
     const [semester, setSemester] = useState("");
     const [className, setClassName] = useState("");
-    const [subject, setSubject] = useState(""); // Subject selection
+    const [subject, setSubject] = useState("");
     const [questions, setQuestions] = useState([{ question: "", moduleType: "", co: "", po: "", bl: "", marks: "" }]);
 
-    // Subjects based on Semester & Class
-    const subjects = {
-        "1_MCAI": ["CFOS", "Discrete Maths", "Web Development"],
-        "2_MCAI": ["AI", "Machine Learning", "DSA"],
-        "3_MCAII": ["AWT", "NO SQL", "Computer Networks"],
-        "4_MCAII": ["IOT", "C# .NET"],
-    };
+    const [classes, setClasses] = useState([]);
+    const [semesters, setSemesters] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+
+    // **Fetch Classes**
+    useEffect(() => {
+        const fetchClasses = async () => {
+            try {
+                const response = await fetch("http://localhost:3001/classes");
+                const data = await response.json();
+                setClasses(data);
+            } catch (error) {
+                console.error("Error fetching classes:", error);
+            }
+        };
+        fetchClasses();
+    }, []);
+
+    // **Fetch Semesters when Class is Selected**
+    useEffect(() => {
+        if (className) {
+            const fetchSemesters = async () => {
+                try {
+                    const response = await fetch(`http://localhost:3001/semesters?className=${className}`);
+
+                    if (!response.ok) {
+                        console.error(`Error: ${response.status} ${response.statusText}`);
+                        return;
+                    }
+
+                    const data = await response.json();
+                    setSemester(""); // Reset semester
+                    setSubjects([]); // Reset subjects
+                    setSemesters(data);
+                } catch (error) {
+                    console.error("Error fetching semesters:", error);
+                }
+            };
+            fetchSemesters();
+        }
+    }, [className]);
+
+    // **Fetch Subjects when Class & Semester are Selected**
+    useEffect(() => {
+        if (className && semester) {
+            const fetchSubjects = async () => {
+                try {
+                    const response = await fetch(`http://localhost:3001/subjects?className=${className}&semester=${semester}`);
+                    const data = await response.json();
+                    setSubjects(data);
+                } catch (error) {
+                    console.error("Error fetching subjects:", error);
+                }
+            };
+            fetchSubjects();
+        }
+    }, [className, semester]);
+
 
     // Module Types
     const moduleTypes = ["Module 1", "Module 2", "Module 3", "Module 4", "Module 5"];
@@ -40,36 +91,36 @@ const QuestionModal = ({ closeModal }) => {
         setQuestions(newQuestions);
     };
 
-    // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (!examType || !semester || !className || !subject || (examType === "internal" && !internalType)) {
             alert("Please fill in all required fields!");
             return;
         }
-
+    
         const requestData = { examType, semester, className, internalType, subject, questions };
-
+    
         try {
             const response = await fetch("http://localhost:3001/generate-questions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(requestData),
             });
-
+    
             const data = await response.json();
             if (!response.ok) {
                 alert(data.message || "Error generating questions");
             } else {
                 alert("Questions saved successfully!");
-                closeModal(); // Close modal after successful submission
+                closeModal();
             }
         } catch (error) {
             console.error("Error submitting questions:", error);
             alert("Something went wrong!");
         }
     };
+    
 
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
@@ -113,35 +164,38 @@ const QuestionModal = ({ closeModal }) => {
                     </div>
                 )}
 
-                {/* Select Semester & Class */}
+                {/* Select Class */}
                 <div className="mb-4">
-                    <label className="block text-gray-700 font-semibold">Semester:</label>
-                    <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full p-2 border rounded">
-                        <option value="">Choose Semester</option>
-                        <option value="1">Semester 1</option>
-                        <option value="2">Semester 2</option>
-                        <option value="3">Semester 3</option>
-                        <option value="4">Semester 4</option>
-                    </select>
-
-                    <label className="block text-gray-700 font-semibold mt-2">Class:</label>
+                    <label className="block font-semibold">Class:</label>
                     <select value={className} onChange={(e) => setClassName(e.target.value)} className="w-full p-2 border rounded">
                         <option value="">Choose Class</option>
-                        <option value="MCAI">MCA I</option>
-                        <option value="MCAII">MCA II</option>
+                        {classes.map((cls, idx) => (
+                            <option key={idx} value={cls}>{cls}</option>
+                        ))}
                     </select>
                 </div>
 
-                {/* Select Subject based on Semester & Class */}
-                {semester && className && subjects[`${semester}_${className}`] && (
+                {/* Select Semester (Dynamic Based on Class) */}
+                {semesters.length > 0 && (
                     <div className="mb-4">
-                        <label className="block text-gray-700 font-semibold">Subject:</label>
+                        <label className="block font-semibold">Semester:</label>
+                        <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full p-2 border rounded">
+                            <option value="">Choose Semester</option>
+                            {semesters.map((sem, idx) => (
+                                <option key={idx} value={sem}>{sem}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                {/* Select Subject (Dynamic Based on Class & Semester) */}
+                {subjects.length > 0 && (
+                    <div className="mb-4">
+                        <label className="block font-semibold">Subject:</label>
                         <select value={subject} onChange={(e) => setSubject(e.target.value)} className="w-full p-2 border rounded">
                             <option value="">Choose Subject</option>
-                            {subjects[`${semester}_${className}`].map((sub, idx) => (
-                                <option key={idx} value={sub}>
-                                    {sub}
-                                </option>
+                            {subjects.map((sub, idx) => (
+                                <option key={idx} value={sub}>{sub}</option>
                             ))}
                         </select>
                     </div>

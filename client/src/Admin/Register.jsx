@@ -9,6 +9,7 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [role, setRole] = useState("Teacher"); // State for role
     const [error, setError] = useState(""); // State for error messages
     const navigate = useNavigate();
 
@@ -26,10 +27,15 @@ function Register() {
 
         // Make the API request
         axios
-            .post("http://localhost:3001/Admin/register", { name, email, password, confirmPassword })
+            .post("http://localhost:3001/Admin/register", { name, email, password, confirmPassword, role })
             .then((result) => {
                 console.log(result);
-                navigate("/Admin/register"); // Redirect to the home page after successful registration
+                if (result.status === 201 || result.status === 200) {
+                    alert("✅ Registration successful!");
+                    navigate("/Admin/register"); // Redirect after successful registration
+                } else {
+                    alert("❗ Something went wrong. Please try again.");
+                } 
             })
             .catch((error) => {
                 console.log(error);
@@ -43,66 +49,81 @@ function Register() {
             <div className="flex-1 ml-64">
                 <Navbar />
                 <main className="p-3 px-6">
-                    <div className="flex items-center  max-h-screen bg-gray-100  rounded shadow-lg border-2 border-gray-800">
-                        <div className="bg-transparent p-8 w-full ">
+                    <div className="flex items-center max-h-screen bg-gray-100 rounded shadow-lg border-2 border-gray-800">
+                        <div className="bg-transparent p-8 w-full">
                             <h2 className="text-2xl font-bold text-left mb-6">Register</h2>
                             {error && ( // Display error message if exists
                                 <div className="mb-4 text-red-600 text-center">
                                     {error}
                                 </div>
                             )}
-                            <form onSubmit={handleSubmit} className="space-y-4 ">
+                            <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="flex items-center gap-2">
-                                <div className="flex-1 ">
-                                    <label htmlFor="name" className="block text-sm font-semibold text-gray-700">
-                                        Enter Name:
+                                    <div className="flex-1">
+                                        <label htmlFor="name" className="block text-sm font-semibold text-gray-700">
+                                            Enter Name:
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                            onChange={(e) => setName(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
+                                            Email Address:
+                                        </label>
+                                        <input
+                                            type="email"
+                                            id="email"
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="flex-1">
+                                        <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+                                            Enter Password:
+                                        </label>
+                                        <input
+                                            type="password"
+                                            id="password"
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700">
+                                            Confirm Password:
+                                        </label>
+                                        <input
+                                            type="password"
+                                            id="confirmPassword"
+                                            className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label htmlFor="role" className="block text-sm font-semibold text-gray-700">
+                                        Select Role:
                                     </label>
-                                    <input
-                                        type="text"
-                                        id="name"
+                                    <select
+                                        id="role"
                                         className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                                        onChange={(e) => setName(e.target.value)}
+                                        value={role}
+                                        onChange={(e) => setRole(e.target.value)}
                                         required
-                                    />
-                                </div>
-                                <div className="flex-1">
-                                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
-                                        Email Address:
-                                    </label>
-                                    <input
-                                        type="email"
-                                        id="email"
-                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                </div>
-                                <div className="flex items-center gap-2 ">
-                                <div className="flex-1">
-                                    <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
-                                        Enter Password:
-                                    </label>
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="flex-1">
-                                    <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700">
-                                        Confirm Password:
-                                    </label>
-                                    <input
-                                        type="password"
-                                        id="confirmPassword"
-                                        className="mt-1 p-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                    >
+                                        <option value="Teacher">Teacher</option>
+                                        <option value="Admin">Admin</option>
+                                    </select>
                                 </div>
                                 <button
                                     type="submit"
@@ -111,7 +132,6 @@ function Register() {
                                     Register
                                 </button>
                             </form>
-                            
                         </div>
                     </div>
                 </main>

@@ -20,17 +20,17 @@ function Dasboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <DashboardCard
               title="Total Questions"
-              count="1,245"
+              count="10"
               icon={<FaFileAlt className="text-blue-500 text-3xl" />}
             />
             <DashboardCard
               title="Generated Papers"
-              count="350"
+              count="2"
               icon={<FaClipboardList className="text-orange-500 text-3xl" />}
             />
            <DashboardCard
               title="Total Users"
-              count="350"
+              count="4"
               icon={<FaClipboardList className="text-indigo-500 text-3xl" />}
             />
           </div>
